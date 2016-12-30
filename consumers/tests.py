@@ -23,7 +23,6 @@ class ReviewViewsTests(TestCase):
         return {"rating": 5,
                 "title": "Sample Review",
                 "summary": "This is a test only review.",
-                "ip_address": "123.123.123.123",
                 "company": self.company.id}
 
     @property

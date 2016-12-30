@@ -48,6 +48,7 @@ class ReviewViewSet(mixins.CreateModelMixin,
         Overriding to add user to request data.
 
         """
-        request.data.update({"reviewer": self.request.user.id})
+        request.data.update({"reviewer": self.request.user.id,
+                             "ip_address": request.META.get('REMOTE_ADDR')})
 
         return super().create(request, *args, **kwargs)
