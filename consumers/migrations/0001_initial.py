@@ -5,7 +5,19 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from django.contrib.auth.models import User
 
+
+def initial_data(apps, schema_editor):
+    try:
+        User.objects.create_superuser(
+            'admin',
+            email='superuser@example.com',
+            password='admin')
+
+    except Exception as e:
+        print(e)
+        print("Unable to load initial data.")
 
 class Migration(migrations.Migration):
 
@@ -42,4 +54,5 @@ class Migration(migrations.Migration):
                 'ordering': ['-submission_date'],
             },
         ),
+        migrations.RunPython(initial_data),
     ]

@@ -28,5 +28,8 @@ class Review(models.Model):
     company = models.ForeignKey(Company)
     reviewer = models.ForeignKey(User)
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         ordering = ["-submission_date"]
