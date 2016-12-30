@@ -26,6 +26,15 @@ class ReviewViewsTests(TestCase):
                 "ip_address": "123.123.123.123",
                 "company": self.company.id}
 
+    @property
+    def object_create_data(self):
+        return {"rating": 5,
+                "title": "Sample Review",
+                "summary": "This is a test only review.",
+                "ip_address": "123.123.123.123",
+                "company": self.company,
+                "reviewer": self.user}
+
     def test_create_behind_authentication(self):
         """ Test review creation endpoint requires authentication. """
         # Given
@@ -96,3 +105,99 @@ class ReviewViewsTests(TestCase):
         # Then
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
+
+    def test_detail_behind_authentication(self):
+        """ Test review detail endpoint requires authentication. """
+        # Given
+        url = reverse("review-list")
+
+        # When
+        response = self.client.get(url)
+
+        # Then
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch.object(JSONWebTokenAuthentication, "authenticate_credentials")
+    @patch("rest_framework_jwt.authentication.jwt_decode_handler")
+    @patch.object(JSONWebTokenAuthentication, "get_jwt_value")
+    def test_detail_alien(self,
+                          jwt_value_mock, jwt_decode_mock, jwt_cred_mock):
+        """
+        Test review detail works as expected:
+
+            Don't show review for another user.
+
+        """
+        # setUp (creating a different user)
+        another_user = User.objects.create_superuser(
+            'anothersuperuser@example.com',
+            email='anothersuperuser@example.com',
+            password='anothersuperuser')
+
+        # Given
+        review = mixer.blend(models.Review, reviewer=another_user)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        jwt_value_mock.return_value = True
+        jwt_decode_mock.return_value = True
+        jwt_cred_mock.return_value = self.user
+        response = self.client.get(url)
+
+        # Then
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    @patch.object(JSONWebTokenAuthentication, "authenticate_credentials")
+    @patch("rest_framework_jwt.authentication.jwt_decode_handler")
+    @patch.object(JSONWebTokenAuthentication, "get_jwt_value")
+    def test_detail(self, jwt_value_mock, jwt_decode_mock, jwt_cred_mock):
+        """
+        Test review detail works as expected:
+
+            Show review for user.
+
+        """
+        # Given
+        review = models.Review.objects.create(**self.object_create_data)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        jwt_value_mock.return_value = True
+        jwt_decode_mock.return_value = True
+        jwt_cred_mock.return_value = self.user
+        response = self.client.get(url)
+
+        # Then
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("id"), review.id)
+        self.assertEqual(response.data.get("company"), self.company.id)
+        self.assertEqual(response.data.get("reviewer"), self.user.id)
+
+    @patch.object(JSONWebTokenAuthentication, "authenticate_credentials")
+    @patch("rest_framework_jwt.authentication.jwt_decode_handler")
+    @patch.object(JSONWebTokenAuthentication, "get_jwt_value")
+    def test_detail_nested(self,
+                           jwt_value_mock, jwt_decode_mock, jwt_cred_mock):
+        """
+        Test review detail works as expected:
+
+            Show review for user (with detailed data for company/reviewer).
+
+        """
+        # Given
+        review = models.Review.objects.create(**self.object_create_data)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        jwt_value_mock.return_value = True
+        jwt_decode_mock.return_value = True
+        jwt_cred_mock.return_value = self.user
+        response = self.client.get(url, {"nested": True})
+
+        # Then
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("id"), review.id)
+        self.assertEqual(response.data.get("company").get("id"),
+                         self.company.id)
+        self.assertEqual(response.data.get("reviewer").get("id"),
+                         self.user.id)
