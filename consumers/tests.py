@@ -201,3 +201,65 @@ class ReviewViewsTests(TestCase):
                          self.company.id)
         self.assertEqual(response.data.get("reviewer").get("id"),
                          self.user.id)
+
+    def test_update_behind_authentication(self):
+        """ Test review updating endpoint requires authentication. """
+        # Given
+        review = models.Review.objects.create(**self.object_create_data)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        response = self.client.put(url, self.create_data, format="json")
+
+        # Then
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch.object(JSONWebTokenAuthentication, "authenticate_credentials")
+    @patch("rest_framework_jwt.authentication.jwt_decode_handler")
+    @patch.object(JSONWebTokenAuthentication, "get_jwt_value")
+    def test_update(self, jwt_value_mock, jwt_decode_mock, jwt_cred_mock):
+        """ Test review updating is not allowed. """
+        # Given
+        review = models.Review.objects.create(**self.object_create_data)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        jwt_value_mock.return_value = True
+        jwt_decode_mock.return_value = True
+        jwt_cred_mock.return_value = self.user
+        response = self.client.put(url, self.create_data, format="json")
+
+        # Then
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_destroy_behind_authentication(self):
+        """ Test review destroying endpoint requires authentication. """
+        # Given
+        review = models.Review.objects.create(**self.object_create_data)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        response = self.client.put(url, format="json")
+
+        # Then
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch.object(JSONWebTokenAuthentication, "authenticate_credentials")
+    @patch("rest_framework_jwt.authentication.jwt_decode_handler")
+    @patch.object(JSONWebTokenAuthentication, "get_jwt_value")
+    def test_destroy(self, jwt_value_mock, jwt_decode_mock, jwt_cred_mock):
+        """ Test review destruction is not allowed. """
+        # Given
+        review = models.Review.objects.create(**self.object_create_data)
+        url = reverse("review-detail", args=[review.id])
+
+        # When
+        jwt_value_mock.return_value = True
+        jwt_decode_mock.return_value = True
+        jwt_cred_mock.return_value = self.user
+        response = self.client.put(url, format="json")
+
+        # Then
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)

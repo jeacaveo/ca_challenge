@@ -23,6 +23,15 @@
 
     python manage.py migrate
 
-6. Run the application:
+6. Run the tests:
+
+    - python manage.py test
+
+7. Get the coverage report (from the project/repository root):
+
+    - coverage run --source='.' manage.py test
+    - coverage report
+
+8. Run the application:
 
     python manage.py runserver
