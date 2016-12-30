@@ -1,7 +1,7 @@
 from rest_framework import (
     viewsets, permissions, filters as rest_filters, mixins)
 
-from consumers import models, serializers
+from consumers import models, serializers, filters
 
 
 class ReviewViewSet(mixins.CreateModelMixin,
@@ -20,7 +20,8 @@ class ReviewViewSet(mixins.CreateModelMixin,
     permission_classes = (permissions.IsAuthenticated,)
     queryset = models.Review.objects.all()
     serializer_class = serializers.ReviewSerializer
-    filter_backends = (rest_filters.DjangoFilterBackend,
+    filter_backends = (filters.ReviewEndpointFilterBackend,
+                       rest_filters.DjangoFilterBackend,
                        rest_filters.OrderingFilter,)
     filter_fields = ("company", "reviewer", "rating")
     filter_fields = ("company", "reviewer", "rating")
