@@ -10,6 +10,7 @@ class Company(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name_plural = "Companies"
 
 
 class Review(models.Model):

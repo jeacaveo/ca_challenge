@@ -171,6 +171,7 @@ class ReviewViewsTests(TestCase):
         self.assertEqual(response.data.get("id"), review.id)
         self.assertEqual(response.data.get("company"), self.company.id)
         self.assertEqual(response.data.get("reviewer"), self.user.id)
+        self.assertEqual(self.company._meta.verbose_name_plural, "Companies")
 
     @patch.object(JSONWebTokenAuthentication, "authenticate_credentials")
     @patch("rest_framework_jwt.authentication.jwt_decode_handler")
