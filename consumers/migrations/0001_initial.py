@@ -10,10 +10,30 @@ from django.contrib.auth.models import User
 
 def initial_data(apps, schema_editor):
     try:
+        Company = apps.get_model("consumers", "Company")
+        Review = apps.get_model("consumers", "Review")
+
         User.objects.create_superuser(
             'admin',
-            email='superuser@example.com',
+            email='admin@example.com',
             password='admin')
+
+        company = Company.objects.create(name="Company X")
+
+        for username in ["user1", "user2"]:
+            user = User.objects.create_user(
+                username,
+                email="{}@example.com".format(username),
+                password=username)
+
+            review = Review()
+            review.rating = 5
+            review.title = "Sample Review from {}".format(user.username)
+            review.summary = "Review from {}.".format(user.username)
+            review.ip_address = "123.123.123.123"
+            review.company = company
+            review.reviewer_id = user.id
+            review.save()
 
     except Exception as e:
         print(e)
