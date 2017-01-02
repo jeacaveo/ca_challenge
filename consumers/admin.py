@@ -3,11 +3,11 @@ from consumers import models
 
 
 class ReviewAdmin(admin.ModelAdmin):
-        pass
+    pass
 
 
 class CompanyAdmin(admin.ModelAdmin):
-        pass
+    pass
 
 
 admin.site.register(models.Review, ReviewAdmin)

@@ -1,6 +1,6 @@
 # Consumer Affairs Challenge
 
-## Instructions to run the project
+## Instructions to run the project (*nix systems)
 
 1. Clone the repository and go in the repository:
 
