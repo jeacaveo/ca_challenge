@@ -60,3 +60,9 @@
     Headers: content-type: application/json
              authorization: JWT token
     Payload: {"rating": 5, "title": "XXXX", "summary": "XXXX", "company": 1}
+
+### Initial data (IDs for each one in parenthesis)
+
+    Users: admin (1), user1 (2), user2 (3)
+    Companies: Company X (1)
+    Reviews: Review by User 1 (1), Review by User 2 (2)
