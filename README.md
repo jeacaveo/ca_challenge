@@ -36,7 +36,7 @@
 
     http://127.0.0.1:8000/admin/
 
-    Credentials: admin/admin
+    Credentials: admin/admin or user1/user1 or user2/user2.
 
 
 ## API
